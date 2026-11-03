@@ -1,4 +1,4 @@
-# alias
+# @tinfoilsh/noise
 
 A Noise Protocol implementation built on top of @noble/ciphers, @noble/curves, and @noble/hashes.
 

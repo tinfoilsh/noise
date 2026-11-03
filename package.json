@@ -18,7 +18,6 @@
   "scripts": {
     "build": "rm -rf dist && bun build src/index.ts --outdir dist --target browser --format esm --packages external && tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
-    "smoke": "bun run build && bun scripts/smoke.ts",
     "test": "bun test"
   },
   "dependencies": {
