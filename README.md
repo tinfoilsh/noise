@@ -1,11 +1,11 @@
 # @tinfoilsh/noise
 
-A Noise Protocol (rev 34) implementation built on top of @noble/ciphers, @noble/curves, and @noble/hashes.
+> NOTE: This library has not been audited.
+
+A Noise Protocol (revision 34) implementation built on top of @noble/ciphers, @noble/curves, and @noble/hashes.
 
 The goal is to provide a general-purpose browser-compatible implementation of Noise with
 minimal papercuts, using only well-audited JavaScript crypto.
-
-> NOTE: This library itself has not been audited.
 
 In particular, this is inspired by snow's representation of the Noise state machine.
 
@@ -38,5 +38,3 @@ session.readMessage(client.writeMessage(new TextEncoder().encode("hello")))
 ```
 
 Tested (and passed) against every `Noise_*_25519_ChaChaPoly_BLAKE2s` test vector in snow's snow.txt, cacophony.txt, and noise-c-basic.txt, plus 270 initiator-side Noise_NK vectors from cacophony, snow, dissononce, and flynn/noise.
-
-You can run tests with `bun test`.
