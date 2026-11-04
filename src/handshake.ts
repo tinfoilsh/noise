@@ -2,7 +2,7 @@ import { x25519 } from "@noble/curves/ed25519.js";
 import { abytes, concatBytes, copyBytes } from "@noble/hashes/utils.js";
 import { NoiseError } from "./errors.js";
 import { type DhToken, parsePattern, type PskToken, type Token } from "./patterns.js";
-import { EMPTY, SymmetricState, TAG_LENGTH } from "./state.js";
+import { type CipherName, EMPTY, type HashName, SymmetricState, TAG_LENGTH } from "./state.js";
 import { MAX_MESSAGE_LENGTH, Transport } from "./transport.js";
 
 const DH_LENGTH = 32;
@@ -10,7 +10,7 @@ const PSK_LENGTH = 32;
 
 export interface HandshakeOptions {
   /** The exact protocol name, e.g. `Noise_XX_25519_ChaChaPoly_BLAKE2s` or `Noise_NNpsk0+psk2_25519_ChaChaPoly_BLAKE2s`. */
-  readonly protocol: `Noise_${string}_25519_ChaChaPoly_BLAKE2s`;
+  readonly protocol: `Noise_${string}_25519_${CipherName}_${HashName}`;
   /** Data mixed into the handshake hash. Both parties must use the same prologue. Defaults to empty. */
   readonly prologue?: Uint8Array | undefined;
   /** This party's X25519 static private key. Required if and only if the pattern uses one for this role. */
@@ -43,7 +43,7 @@ interface Secrets {
 }
 
 /**
- * A state machine for one party's side of a `Noise_<pattern>_25519_ChaChaPoly_BLAKE2s` handshake.
+ * A state machine for one party's side of a `Noise_<pattern>_25519_<cipher>_<hash>` handshake.
  *
  * Messages must be written and read in the order the pattern defines; once `isFinished` is true,
  * `intoTransport()` returns the session's `Transport`. Calling out of turn or after the handshake
@@ -97,7 +97,7 @@ export class Handshake {
       throw new NoiseError("invalid-options", message);
     }
     const s = staticPrivateKey && { privateKey: staticPrivateKey, publicKey: x25519.getPublicKey(staticPrivateKey) };
-    const symmetric = new SymmetricState(pattern.protocol);
+    const symmetric = new SymmetricState(pattern.protocol, pattern.cipher, pattern.hash);
     symmetric.mixHash(abytes(options.prologue ?? EMPTY, undefined, "prologue"));
     const preMessages = [localPreMessage ? s?.publicKey : undefined, rs];
     for (const preMessage of initiator ? preMessages : preMessages.reverse()) {

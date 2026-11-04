@@ -1,4 +1,5 @@
 import { NoiseError } from "./errors.js";
+import { CIPHERS, type CipherName, HASHES, type HashName } from "./state.js";
 
 export type DhToken = "ee" | "es" | "se" | "ss";
 /** Carries its modifier position, e.g. `{ psk: 2 }` for `psk2`. */
@@ -7,6 +8,8 @@ export type Token = "e" | "s" | DhToken | PskToken;
 
 export interface Pattern {
   readonly protocol: string;
+  readonly cipher: CipherName;
+  readonly hash: HashName;
   readonly initiatorPreMessage: boolean;
   readonly responderPreMessage: boolean;
   /** Token lists, alternating from the initiator, with PSK modifiers applied. */
@@ -56,7 +59,7 @@ const PATTERNS: Readonly<Record<string, readonly string[]>> = {
   I1X1: ["", "", "e s", "e ee s", "se es"],
 };
 
-const PROTOCOL = /^Noise_([A-Z0-9]+)([a-z0-9+]*)_25519_ChaChaPoly_BLAKE2s$/;
+const PROTOCOL = /^Noise_([A-Z0-9]+)([a-z0-9+]*)_25519_([A-Za-z0-9]+)_([A-Za-z0-9]+)$/;
 const PSK_MODIFIER = /^psk(0|[1-9][0-9]*)$/;
 
 /**
@@ -64,8 +67,10 @@ const PSK_MODIFIER = /^psk(0|[1-9][0-9]*)$/;
  * are supported, and PSK modifiers must be sorted, distinct, and in range (Noise spec sections 8.1 and 9).
  */
 export function parsePattern(protocol: string): Pattern {
-  const [, base = "", modifiers = ""] = PROTOCOL.exec(protocol) ?? [];
-  if (!Object.hasOwn(PATTERNS, base)) throw new NoiseError("unsupported", `unsupported Noise protocol: ${protocol}`);
+  const [, base = "", modifiers = "", cipher = "", hash = ""] = PROTOCOL.exec(protocol) ?? [];
+  if (!Object.hasOwn(PATTERNS, base) || !Object.hasOwn(CIPHERS, cipher) || !Object.hasOwn(HASHES, hash)) {
+    throw new NoiseError("unsupported", `unsupported Noise protocol: ${protocol}`);
+  }
   const [initiatorPreMessage, responderPreMessage, ...messages] = PATTERNS[base];
   const tokens = messages.map((message) => message.split(" ") as Token[]);
   const pskPositions: number[] = [];
@@ -81,6 +86,8 @@ export function parsePattern(protocol: string): Pattern {
   }
   return {
     protocol,
+    cipher: cipher as CipherName,
+    hash: hash as HashName,
     initiatorPreMessage: initiatorPreMessage === "s",
     responderPreMessage: responderPreMessage === "s",
     messages: tokens,

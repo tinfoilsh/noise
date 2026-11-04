@@ -52,8 +52,8 @@ describe("CipherState", () => {
     [2n ** 53n - 1n, ["00000000ffffffffffff1f00", "000000000000000000002000", "000000000100000000002000"]],
     [2n ** 64n - 3n, ["00000000fdffffffffffffff", "00000000feffffffffffffff"]],
   ])("counts from %p as four zero bytes and a little-endian uint64", (start, nonces) => {
-    const sender = new CipherState(key, start);
-    const receiver = new CipherState(key, start);
+    const sender = new CipherState("ChaChaPoly", key, start);
+    const receiver = new CipherState("ChaChaPoly", key, start);
     for (const nonce of nonces) {
       const ciphertext = sender.encryptWithAd(ad, plaintext);
       expect(ciphertext).toEqual(sealed(nonce));
@@ -62,10 +62,10 @@ describe("CipherState", () => {
   });
 
   test("refuses the reserved nonce 2^64 - 1 in both directions", () => {
-    const sender = new CipherState(key, 2n ** 64n - 2n);
+    const sender = new CipherState("ChaChaPoly", key, 2n ** 64n - 2n);
     sender.encryptWithAd(ad, plaintext);
     expect(() => sender.encryptWithAd(ad, plaintext)).toThrow("exhausted");
-    const receiver = new CipherState(key, 2n ** 64n - 1n);
+    const receiver = new CipherState("ChaChaPoly", key, 2n ** 64n - 1n);
     expect(() => receiver.decryptWithAd(ad, sealed("00000000ffffffffffffffff"))).toThrow("exhausted");
   });
 });

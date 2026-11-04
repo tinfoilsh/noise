@@ -65,8 +65,8 @@ function replay(v: Vector) {
 }
 
 describe.each([
-  ["snow.json", 51],
-  ["cacophony.json", 59],
+  ["snow.json", 408],
+  ["cacophony.json", 472],
 ] as const)("%s, both roles", (file, count) => {
   const vectors = load(file);
   test("has every vector", () => expect(vectors.length).toBe(count));

@@ -136,9 +136,8 @@ describe.each([...ONE_WAY, ...FUNDAMENTAL, ...DEFERRED])("Noise_%s", (base) => {
 
 test("rejects unsupported suites, patterns, fallback, hybrid and malformed modifiers", () => {
   const names = [
-    "Noise_XX_25519_AESGCM_SHA256",
+    "Noise_XX_25519_AESGCM_SHA384",
     "Noise_XX_448_ChaChaPoly_BLAKE2s",
-    "Noise_XX_25519_ChaChaPoly_BLAKE2b",
     "Noise_XX_25519_ChaChaPoly_BLAKE2s ",
     "noise_XX_25519_ChaChaPoly_BLAKE2s",
     "Noise_XY_25519_ChaChaPoly_BLAKE2s",
